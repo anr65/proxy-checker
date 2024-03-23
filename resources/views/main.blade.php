@@ -119,7 +119,7 @@
                 },
                 complete: function() {
                     loading.hide();
-                    submitButton.prop('disabled', false).text('Check Proxies');
+                    $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
                 }
             });
         });
