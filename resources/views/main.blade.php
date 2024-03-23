@@ -133,11 +133,15 @@
             resultsBody.empty();
 
             $.each(data.results, function(index, result) {
+                var statusText = result.status ? 'Работает' : 'Нерабочий';
+                var textColor = result.status ? 'black' : 'white';
+                var backgroundColor = result.status ? 'green' : 'red';
+
                 resultsBody.append('<tr>' +
                     '<td>' + result.ip_port + '</td>' +
                     '<td>' + result.type + '</td>' +
                     '<td>' + result.location + '</td>' +
-                    '<td>' + result.status + '</td>' +
+                    '<td style="color: ' + textColor + '; background-color: ' + backgroundColor + ';">' + statusText + '</td>' +
                     '<td>' + result.timeout + ' ms</td>' +
                     '<td>' + result.ext_ip + '</td>' +
                     '</tr>');

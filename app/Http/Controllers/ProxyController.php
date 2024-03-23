@@ -101,7 +101,7 @@ class ProxyController extends Controller
         curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Timeout in seconds
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100); // Timeout in seconds
         curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
@@ -115,7 +115,7 @@ class ProxyController extends Controller
         curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Use SOCKS5 proxy
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Timeout in seconds
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 100); // Timeout in seconds
         curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
