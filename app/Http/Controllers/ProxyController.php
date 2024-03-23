@@ -64,6 +64,8 @@ class ProxyController extends Controller
             'job_id' => $jobId
         ];
 
+        Proxy::create($proxyInfo);
+
         return $proxyInfo;
     }
 
