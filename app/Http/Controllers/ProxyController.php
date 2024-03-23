@@ -36,7 +36,7 @@ class ProxyController extends Controller
         $port = $proxyParts[1];
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://example.com'); // Замените example.com на адрес, который вы хотите запросить через прокси
+        curl_setopt($ch, CURLOPT_URL, 'https://google.com'); // Замените example.com на адрес, который вы хотите запросить через прокси
         curl_setopt($ch, CURLOPT_PROXY, $ip);
         curl_setopt($ch, CURLOPT_PROXYPORT, $port);
         curl_setopt($ch, CURLOPT_HEADER, true);
@@ -45,6 +45,8 @@ class ProxyController extends Controller
         curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Опционально: установка таймаута для запроса
         $response = curl_exec($ch);
         $errorCode = curl_errno($ch);
+        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+        $headers = substr($response, 0, $headerSize);
         curl_close($ch);
 
         $proxyInfo = [
@@ -60,6 +62,21 @@ class ProxyController extends Controller
 
         if ($errorCode == 0) {
             $proxyInfo['status'] = 'working';
+
+            // Определение типа прокси
+            $proxyInfo['type'] = strpos($headers, 'SOCKS') !== false ? 'socks' : 'http';
+
+            // Парсинг заголовков для определения страны и города
+            preg_match('/X-Country: ([A-Za-z]+)/', $headers, $matches);
+            if (!empty($matches[1])) {
+                $proxyInfo['country'] = $matches[1];
+            }
+
+            // Получаем внешний IP прокси
+            preg_match('/X-Forwarded-For: ([\d.]+)/', $headers, $matches);
+            if (!empty($matches[1])) {
+                $proxyInfo['external_ip'] = $matches[1];
+            }
         }
 
         return $proxyInfo;
