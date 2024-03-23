@@ -17,6 +17,7 @@ class ProxyController extends Controller
 
         foreach ($proxies as $proxy) {
             $proxyInfo = $this->checkProxy($proxy);
+            sleep(1);
             if ($proxyInfo['status'] === 'working') {
                 $workingProxies++;
             }
