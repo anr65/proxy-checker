@@ -13,8 +13,8 @@ class ProxyController extends Controller
     {
         $proxies = explode("\n", $request->input('proxies'));
 
-        $job = new CheckProxiesJob($proxies);
-        CheckProxiesJob::dispatch($job);
+//        $job = new CheckProxiesJob($proxies);
+        $job = CheckProxiesJob::dispatch($proxies);
 
         return response()->json([
             'message' => 'Proxy checking job has been dispatched successfully.',
