@@ -60,23 +60,21 @@ class ProxyController extends Controller
             'external_ip' => ''
         ];
 
-        if ($errorCode == 0) {
-            $proxyInfo['status'] = 'working';
+        $proxyInfo['status'] = 'working';
 
-            // Определение типа прокси
-            $proxyInfo['type'] = strpos($headers, 'SOCKS') !== false ? 'socks' : 'http';
+        // Определение типа прокси
+        $proxyInfo['type'] = strpos($headers, 'SOCKS') !== false ? 'socks' : 'http';
 
-            // Парсинг заголовков для определения страны и города
-            preg_match('/X-Country: ([A-Za-z]+)/', $headers, $matches);
-            if (!empty($matches[1])) {
-                $proxyInfo['country'] = $matches[1];
-            }
+        // Парсинг заголовков для определения страны и города
+        preg_match('/X-Country: ([A-Za-z]+)/', $headers, $matches);
+        if (!empty($matches[1])) {
+            $proxyInfo['country'] = $matches[1];
+        }
 
-            // Получаем внешний IP прокси
-            preg_match('/X-Forwarded-For: ([\d.]+)/', $headers, $matches);
-            if (!empty($matches[1])) {
-                $proxyInfo['external_ip'] = $matches[1];
-            }
+        // Получаем внешний IP прокси
+        preg_match('/X-Forwarded-For: ([\d.]+)/', $headers, $matches);
+        if (!empty($matches[1])) {
+            $proxyInfo['external_ip'] = $matches[1];
         }
 
         return $proxyInfo;
