@@ -26,12 +26,12 @@ class CheckProxiesJob implements ShouldQueue
      * @param array $proxies
      * @return void
      */
-    public function __construct(array $proxies)
+    public function __construct(array $proxies, string $jobId)
     {
         $this->proxies = $proxies;
         $this->totalProxies = count($proxies);
         $this->workingProxies = 0;
-        $this->jobId = Str::uuid(); // Generate a unique job ID
+        $this->jobId = $jobId; // Generate a unique job ID
         Cache::put('proxy_check_' . $this->jobId, [
             'progress' => 0,
             'total_proxies' => $this->totalProxies,
