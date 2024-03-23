@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\CheckProxiesJob;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ProxyController extends Controller
 {
@@ -19,6 +20,28 @@ class ProxyController extends Controller
             'message' => 'Proxy checking job has been dispatched successfully.',
             'job_id' => $job->getJobId(), // Return the job ID
             'done' => false, // Initially mark job as not done
+        ]);
+    }
+
+    public function getProgress(Request $request)
+    {
+        $jobId = $request->input('job_id');
+
+        $cacheKey = 'proxy_check_' . $jobId;
+        $progressData = Cache::get($cacheKey);
+
+        if (!$progressData) {
+            return response()->json(['error' => 'Invalid job ID or job not found.'], 404);
+        }
+
+        $progress = $progressData['progress'];
+        $done = Cache::get('proxy_check_' . $jobId . '_done', false);
+
+        return response()->json([
+            'progress' => $progress,
+            'done' => $done,
+            'job_id' => $jobId,
+            'results' => $progressData['results'], // Include results if needed
         ]);
     }
 
