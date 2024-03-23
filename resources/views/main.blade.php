@@ -1,5 +1,3 @@
-<!-- resources/views/proxy-check.blade.php -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +11,9 @@
         }
         .container {
             max-width: 800px;
+        }
+        #loading {
+            display: none;
         }
     </style>
 </head>
@@ -45,6 +46,9 @@
                 <textarea class="form-control" id="proxyList" name="proxies" rows="10" cols="50"></textarea>
             </div>
             <button type="submit" class="btn btn-primary" id="checkButton">Check Proxies</button>
+            <div id="loading" class="spinner-border text-primary ml-3" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         </form>
         <div class="progress mt-3">
             <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar"></div>
@@ -99,6 +103,9 @@
             var progressText = $('#progressText');
             progressText.text('0%');
 
+            var loading = $('#loading');
+            loading.show();
+
             var formData = $(this).serialize();
             $.ajax({
                 type: 'POST',
@@ -109,6 +116,10 @@
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
+                },
+                complete: function() {
+                    loading.hide();
+                    submitButton.prop('disabled', false).text('Check Proxies');
                 }
             });
         });
@@ -137,10 +148,6 @@
 
             var workingProxiesSpan = $('#workingProxies');
             workingProxiesSpan.text(data.working_proxies);
-
-
-            var submitButton = $('#checkButton');
-            submitButton.prop('disabled', false).text('Check Proxies');
         }
 
         function updateProgressBar(percentage) {
