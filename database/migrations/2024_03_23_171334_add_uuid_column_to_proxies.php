@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('proxies', function (Blueprint $table) {
-            //
+            $table->string('job_uuid')->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('proxies', function (Blueprint $table) {
-            //
+            $table->dropColumn('job_uuid');
         });
     }
 };
