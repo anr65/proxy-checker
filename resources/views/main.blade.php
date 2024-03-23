@@ -57,10 +57,13 @@
             var progressBar = $('#progressBar');
             progressBar.width('0%').attr('aria-valuenow', 0);
 
+            var jobId;
+
             var intervalId = setInterval(function() {
                 $.ajax({
                     type: 'GET',
                     url: '/check-proxies/progress',
+                    data: { job_id: jobId },
                     success: function(response) {
                         updateProgressBar(response.progress);
                         if (response.done) {
@@ -80,7 +83,7 @@
                 url: '/check-proxies',
                 data: formData,
                 success: function(response) {
-                    // Job ID returned from backend
+                    jobId = response.job_id;
                     console.log('Job ID:', response.job_id);
                 },
                 error: function(xhr, status, error) {
