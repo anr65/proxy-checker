@@ -12,7 +12,7 @@ class JobsList extends Model
     protected $table = 'jobs_list';
 
     protected $fillable = [
-        'id',
+        'uuid',
         'started_at',
         'ended_at',
         'total_count',
