@@ -42,12 +42,12 @@
         <form id="proxyForm">
             @csrf
             <div class="form-group">
-                <label for="proxyList">Proxy List:</label>
+                <label for="proxyList">Список прокси:</label>
                 <textarea class="form-control" id="proxyList" name="proxies" rows="10" cols="50"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" id="checkButton">Check Proxies</button>
+            <button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>
             <div id="loading" class="spinner-border text-primary ml-3" role="status">
-                <span class="sr-only">Loading...</span>
+                <span class="sr-only">Загрузка...</span>
             </div>
         </form>
         <div class="progress mt-3">
@@ -57,20 +57,20 @@
 
         <!-- Display results in a table -->
         <div id="resultsTable" style="display: none;">
-            <h2 class="mt-5">Results</h2>
+            <h2 class="mt-5">Результат</h2>
             <div class="mt-4">
-                <p>Total Proxies: <span id="totalProxies"></span></p>
-                <p>Working Proxies: <span id="workingProxies"></span></p>
+                <p>Всего прокси: <span id="totalProxies"></span></p>
+                <p>Рабочих прокси: <span id="workingProxies"></span></p>
             </div>
             <table class="table">
                 <thead>
                 <tr>
-                    <th>IP</th>
-                    <th>Port</th>
-                    <th>Status</th>
-                    <th>Country</th>
-                    <th>City</th>
-                    <th>ISP</th>
+                    <th>Ip:port</th>
+                    <th>Тип</th>
+                    <th>Расположение</th>
+                    <th>Статус</th>
+                    <th>Скорость</th>
+                    <th>Реальный IP</th>
                 </tr>
                 </thead>
                 <tbody id="resultsBody">
@@ -133,12 +133,12 @@
 
             $.each(data.results, function(index, result) {
                 resultsBody.append('<tr>' +
-                    '<td>' + result.ip + '</td>' +
-                    '<td>' + result.port + '</td>' +
+                    '<td>' + result.ip_port + '</td>' +
+                    '<td>' + result.type + '</td>' +
+                    '<td>' + result.location + '</td>' +
                     '<td>' + result.status + '</td>' +
-                    '<td>' + result.country + '</td>' +
-                    '<td>' + result.city + '</td>' +
-                    '<td>' + result.isp + '</td>' +
+                    '<td>' + result.timeout + ' ms</td>' +
+                    '<td>' + result.ext_ip + '</td>' +
                     '</tr>');
                 updateProgressBar((index + 1) / data.results.length * 100);
             });

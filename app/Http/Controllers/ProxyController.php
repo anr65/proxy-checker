@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Proxy;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -18,7 +19,7 @@ class ProxyController extends Controller
         foreach ($proxies as $proxy) {
             $proxyInfo = $this->checkProxy($proxy);
             sleep(1);
-            if ($proxyInfo['status'] === 'working') {
+            if ($proxyInfo['status'] === true) {
                 $workingProxies++;
             }
             $results[] = $proxyInfo;
@@ -40,16 +41,20 @@ class ProxyController extends Controller
         $client = new Client();
         $response = $client->get("http://ip-api.com/json/{$ip}?fields=country,city,isp");
         $locationData = json_decode($response->getBody()->getContents(), true);
-
+        $country = $locationData['country'] ?? 'Unknown';
+        $city = $locationData['city'] ?? 'Unknown';
+        $location = "$country/$city";
         $proxyInfo = [
-            'ip' => $ip,
-            'port' => $port,
-            'status' => 'working',
-            'country' => $locationData['country'] ?? 'Unknown',
-            'city' => $locationData['city'] ?? 'Unknown',
-            'isp' => $locationData['isp'] ?? 'Unknown'
+            'ip_port' => "$ip:$port",
+            'type' => "HTTPS",
+            'location' => $location,
+            'status' => true,
+            'timeout' => 100,
+            'ext_ip' => $ip
         ];
 
-        return $proxyInfo;
+        $newProxy = new Proxy($proxyInfo);
+
+        return $newProxy;
     }
 }
