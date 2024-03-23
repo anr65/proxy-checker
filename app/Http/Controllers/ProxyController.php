@@ -15,7 +15,7 @@ class ProxyController extends Controller
         $proxies = explode("\n", $request->input('proxies'));
 
         $job_id = Str::uuid();
-        CheckProxiesJob::dispatch($proxies, $job_id);
+        CheckProxiesJob::dispatchSync($proxies, $job_id); // Dispatch job asynchronously
 
         return response()->json([
             'message' => 'Proxy checking job has been dispatched successfully.',
