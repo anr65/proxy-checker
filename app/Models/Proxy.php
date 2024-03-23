@@ -11,6 +11,7 @@ class Proxy extends Model
     protected $table = 'proxies';
 
     protected $fillable = [
+        'uuid',
         'ip_port',
         'type',
         'location',
