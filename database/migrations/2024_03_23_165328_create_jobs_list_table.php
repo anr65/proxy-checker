@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('jobs_list', function (Blueprint $table) {
             $table->id();
+            $table->string('started_at')->nullable();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('ended_at')->nullable();
+            $table->integer('total_count')->nullable();
+            $table->integer('working_count')->nullable();
             $table->timestamps();
         });
     }

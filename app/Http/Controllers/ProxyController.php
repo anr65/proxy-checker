@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JobsList;
 use App\Models\Proxy;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ProxyController extends Controller
 {
@@ -15,15 +17,25 @@ class ProxyController extends Controller
         $results = [];
         $totalProxies = count($proxies);
         $workingProxies = 0;
-
+        $jobId = Str::uuid();
+        $started_at = now();
         foreach ($proxies as $proxy) {
-            $proxyInfo = $this->checkProxy($proxy);
+            $proxyInfo = $this->checkProxy($proxy, $jobId);
             sleep(1);
             if ($proxyInfo['status'] === true) {
                 $workingProxies++;
             }
             $results[] = $proxyInfo;
+            $ended_at = now();
         }
+        $jobData = [
+            'id' => $jobId,
+            'started_at' => $started_at,
+            'ended_at' => $ended_at,
+            'total_count' => $totalProxies,
+            'working_count' => $workingProxies
+        ];
+        new JobsList($jobData);
 
         return response()->json([
             'results' => $results,
@@ -32,7 +44,7 @@ class ProxyController extends Controller
         ]);
     }
 
-    private function checkProxy($proxy)
+    private function checkProxy($proxy, $jobId)
     {
         $proxyParts = explode(':', $proxy);
         $ip = $proxyParts[0];
@@ -50,7 +62,8 @@ class ProxyController extends Controller
             'location' => $location,
             'status' => true,
             'timeout' => 100,
-            'ext_ip' => $ip
+            'ext_ip' => $ip,
+            'job_id' => $jobId
         ];
 
         $newProxy = new Proxy($proxyInfo);
