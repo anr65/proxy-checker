@@ -51,6 +51,16 @@ class ProxyController extends Controller
         $client = new Client();
         $response = $client->get("http://ip-api.com/json/{$ip}?fields=country,city,isp");
         $locationData = json_decode($response->getBody()->getContents(), true);
+
+        // Attempt HTTP connection
+        $httpSuccess = $this->testConnection("http://google.com", $ip, $port);
+        // Attempt HTTPS connection
+        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
+        // Attempt SOCKS connection
+        $socksSuccess = $this->testSocksConnection($ip, $port);
+
+        // Determine the type of successful connection
+
         $country = $locationData['country'] ?? 'Unknown';
         $city = $locationData['city'] ?? 'Unknown';
         $location = "$country/$city";
@@ -64,11 +74,50 @@ class ProxyController extends Controller
             'job_uuid' => $jobId
         ];
 
+        if ($httpSuccess) {
+            $proxyInfo['type'] = 'HTTP';
+            $proxyInfo['status'] = true;
+        } elseif ($httpsSuccess) {
+            $proxyInfo['type'] = 'HTTPS';
+            $proxyInfo['status'] = true;
+        } elseif ($socksSuccess) {
+            $proxyInfo['type'] = 'SOCKS';
+            $proxyInfo['status'] = true;
+        }
+
         Proxy::create($proxyInfo);
 
         return $proxyInfo;
     }
 
+
+    private function testConnection($url, $ip, $port)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
+        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Timeout in seconds
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return ($httpCode == 200); // Check if connection was successful
+    }
+
+    private function testSocksConnection($ip, $port)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "http://example.com"); // URL doesn't matter for SOCKS test
+        curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
+        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Use SOCKS5 proxy
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Timeout in seconds
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return ($httpCode == 200); // Check if connection was successful
+    }
     public function getDoneJobs() {
         $doneJobs = JobsList::all();
         return response()->json([
