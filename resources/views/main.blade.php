@@ -50,6 +50,26 @@
             <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar"></div>
         </div>
         <div class="mt-2" id="progressText">0%</div>
+
+        <!-- Display results in a table -->
+        <div id="resultsTable" style="display: none;">
+            <h2 class="mt-5">Results</h2>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>IP</th>
+                    <th>Port</th>
+                    <th>Status</th>
+                    <th>Country</th>
+                    <th>City</th>
+                    <th>ISP</th>
+                </tr>
+                </thead>
+                <tbody id="resultsBody">
+                <!-- Results will be populated here dynamically -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div id="history" style="display: none;">
@@ -67,11 +87,9 @@
         $('#proxyForm').submit(function(event) {
             event.preventDefault();
 
-            // Disable the button and change its text to "Checking..."
-            var submitButton = $('#proxyForm button[type="submit"]');
+            var submitButton = $('#checkButton');
             submitButton.prop('disabled', true).text('Checking...');
 
-            // Reset progress bar
             var progressBar = $('#progressBar');
             progressBar.css('width', '0%').attr('aria-valuenow', '0');
             var progressText = $('#progressText');
@@ -92,20 +110,25 @@
         });
 
         function displayResults(data) {
-            var resultsDiv = $('#results');
-            resultsDiv.empty();
-            resultsDiv.append('<h2>Results</h2>');
-            resultsDiv.append('<p>Total Proxies: ' + data.total_proxies + '</p>');
-            resultsDiv.append('<p>Working Proxies: ' + data.working_proxies + '</p>');
-            resultsDiv.append('<div>');
+            var resultsTable = $('#resultsTable');
+            resultsTable.show();
+
+            var resultsBody = $('#resultsBody');
+            resultsBody.empty();
+
             $.each(data.results, function(index, result) {
-                resultsDiv.append('<p>IP: ' + result.ip + ':' + result.port + ' - Status: ' + result.status + '</p>');
+                resultsBody.append('<tr>' +
+                    '<td>' + result.ip + '</td>' +
+                    '<td>' + result.port + '</td>' +
+                    '<td>' + result.status + '</td>' +
+                    '<td>' + result.country + '</td>' +
+                    '<td>' + result.city + '</td>' +
+                    '<td>' + result.isp + '</td>' +
+                    '</tr>');
                 updateProgressBar((index + 1) / data.results.length * 100);
             });
-            resultsDiv.append('</div>');
 
-            // Re-enable the button and change its text back to "Check Proxies"
-            var submitButton = $('#proxyForm button[type="submit"]');
+            var submitButton = $('#checkButton');
             submitButton.prop('disabled', false).text('Check Proxies');
         }
 
