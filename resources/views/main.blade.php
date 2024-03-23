@@ -63,6 +63,17 @@
     $(document).ready(function() {
         $('#proxyForm').submit(function(event) {
             event.preventDefault();
+
+            // Disable the button and change its text to "Checking..."
+            var submitButton = $('#proxyForm button[type="submit"]');
+            submitButton.prop('disabled', true).text('Checking...');
+
+            // Reset progress bar
+            var progressBar = $('#progressBar');
+            progressBar.css('width', '0%').attr('aria-valuenow', '0');
+            var progressText = $('#progressText');
+            progressText.text('0%');
+
             var formData = $(this).serialize();
             $.ajax({
                 type: 'POST',
@@ -89,10 +100,20 @@
                 updateProgressBar((index + 1) / data.results.length * 100);
             });
             resultsDiv.append('</div>');
+
+            // Re-enable the button and change its text back to "Check Proxies"
+            var submitButton = $('#proxyForm button[type="submit"]');
+            submitButton.prop('disabled', false).text('Check Proxies');
         }
 
         function updateProgressBar(percentage) {
-            $('#progressBar').css('width', percentage + '%').attr('aria-valuenow', percentage);
+            // Update progress bar width and aria-valuenow attribute
+            var progressBar = $('#progressBar');
+            progressBar.css('width', percentage + '%').attr('aria-valuenow', percentage);
+
+            // Update progress text
+            var progressText = $('#progressText');
+            progressText.text(percentage.toFixed(0) + '%');
         }
     });
 </script>
