@@ -43,7 +43,7 @@ class ProxyController extends Controller
         $proxyInfo = [
             'ip' => $ip,
             'port' => $port,
-            'status' => 'unknown',
+            'status' => 'working',
             'country' => $locationData['country'] ?? 'Unknown',
             'city' => $locationData['city'] ?? 'Unknown',
             'isp' => $locationData['isp'] ?? 'Unknown'
