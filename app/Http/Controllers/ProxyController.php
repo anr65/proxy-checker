@@ -66,9 +66,9 @@ class ProxyController extends Controller
         $location = "$country/$city";
         $proxyInfo = [
             'ip_port' => "$ip:$port",
-            'type' => "HTTPS",
+            'type' => "",
             'location' => $location,
-            'status' => true,
+            'status' => null,
             'timeout' => 100,
             'ext_ip' => $ip,
             'job_uuid' => $jobId
@@ -83,6 +83,9 @@ class ProxyController extends Controller
         } elseif ($socksSuccess) {
             $proxyInfo['type'] = 'SOCKS';
             $proxyInfo['status'] = true;
+        } else {
+            $proxyInfo['type'] = 'Unkown';
+            $proxyInfo['status'] = false;
         }
 
         Proxy::create($proxyInfo);
