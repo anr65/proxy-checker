@@ -54,6 +54,10 @@
         <!-- Display results in a table -->
         <div id="resultsTable" style="display: none;">
             <h2 class="mt-5">Results</h2>
+            <div class="mt-4">
+                <p>Total Proxies: <span id="totalProxies"></span></p>
+                <p>Working Proxies: <span id="workingProxies"></span></p>
+            </div>
             <table class="table">
                 <thead>
                 <tr>
@@ -127,6 +131,13 @@
                     '</tr>');
                 updateProgressBar((index + 1) / data.results.length * 100);
             });
+
+            var totalProxiesSpan = $('#totalProxies');
+            totalProxiesSpan.text(data.total_proxies);
+
+            var workingProxiesSpan = $('#workingProxies');
+            workingProxiesSpan.text(data.working_proxies);
+
 
             var submitButton = $('#checkButton');
             submitButton.prop('disabled', false).text('Check Proxies');
