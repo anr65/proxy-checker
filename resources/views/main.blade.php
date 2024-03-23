@@ -86,8 +86,13 @@
             resultsDiv.append('<div>');
             $.each(data.results, function(index, result) {
                 resultsDiv.append('<p>IP: ' + result.ip + ':' + result.port + ' - Status: ' + result.status + '</p>');
+                updateProgressBar((index + 1) / data.results.length * 100);
             });
             resultsDiv.append('</div>');
+        }
+
+        function updateProgressBar(percentage) {
+            $('#progressBar').css('width', percentage + '%').attr('aria-valuenow', percentage);
         }
     });
 </script>
