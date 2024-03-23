@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckProxiesJob;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -11,23 +12,13 @@ class ProxyController extends Controller
     {
         $proxies = explode("\n", $request->input('proxies'));
 
-        $results = [];
-        $totalProxies = count($proxies);
-        $workingProxies = 0;
-
-        foreach ($proxies as $proxy) {
-            $proxyInfo = $this->checkProxy($proxy);
-            sleep(1);
-            if ($proxyInfo['status'] === 'working') {
-                $workingProxies++;
-            }
-            $results[] = $proxyInfo;
-        }
+        $job = new CheckProxiesJob($proxies);
+        CheckProxiesJob::dispatch($job);
 
         return response()->json([
-            'results' => $results,
-            'total_proxies' => $totalProxies,
-            'working_proxies' => $workingProxies,
+            'message' => 'Proxy checking job has been dispatched successfully.',
+            'job_id' => $job->getJobId(), // Return the job ID
+            'done' => false, // Initially mark job as not done
         ]);
     }
 
