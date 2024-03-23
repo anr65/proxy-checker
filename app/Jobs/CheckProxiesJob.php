@@ -26,7 +26,7 @@ class CheckProxiesJob implements ShouldQueue
      * @param array $proxies
      * @return void
      */
-    public function __construct($proxies)
+    public function __construct(array $proxies)
     {
         $this->proxies = $proxies;
         $this->totalProxies = count($proxies);
