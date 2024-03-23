@@ -21,3 +21,4 @@ Route::get('/', function () {
 Route::post('/check-proxies', [ProxyController::class, 'checkProxies']);
 Route::post('/check-proxies', [ProxyController::class, 'checkProxies']);
 Route::get('/check-proxies/progress', [ProxyController::class, 'getProgress']);
+Route::get('/done-jobs', [ProxyController::class, 'getDoneJobs']);

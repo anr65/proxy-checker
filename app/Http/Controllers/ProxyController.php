@@ -70,4 +70,11 @@ class ProxyController extends Controller
 
         return $newProxy;
     }
+
+    public function getDoneJobs() {
+        $doneJobs = JobsList::all();
+        return response()->json([
+            'list' => $doneJobs,
+        ]);
+    }
 }
