@@ -30,7 +30,7 @@
                 <a class="nav-link active" href="#home">Главная</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#history">История</a>
+                <a class="nav-link" href="/proxy-history">История</a>
             </li>
         </ul>
     </div>
