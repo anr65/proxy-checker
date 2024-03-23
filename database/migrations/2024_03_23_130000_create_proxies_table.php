@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('proxies', function (Blueprint $table) {
             $table->id();
+            $table->string('ip_port')->nullable();
+            $table->string('type')->nullable();
+            $table->string('location')->nullable();
+            $table->boolean('status')->nullable();
+            $table->integer('timeout')->nullable();
+            $table->string('ext_ip')->nullable();
             $table->timestamps();
         });
     }
