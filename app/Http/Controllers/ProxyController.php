@@ -28,7 +28,7 @@ class ProxyController extends Controller
             $ended_at = now();
         }
         JobsList::create([
-            'id' => $jobId,
+            'uuid' => $jobId,
             'started_at' => $started_at,
             'ended_at' => $ended_at,
             'total_count' => $totalProxies,
