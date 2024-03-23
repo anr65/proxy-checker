@@ -18,6 +18,11 @@ Route::get('/', function () {
     return view('main');
 });
 
+
+Route::get('/proxy-history', function () {
+    return view('proxy-history');
+});
+
 Route::post('/check-proxies', [ProxyController::class, 'checkProxies']);
 Route::post('/check-proxies', [ProxyController::class, 'checkProxies']);
 Route::get('/check-proxies/progress', [ProxyController::class, 'getProgress']);
