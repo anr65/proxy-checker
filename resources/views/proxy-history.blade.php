@@ -100,7 +100,7 @@
                         $('<td>').text(job.total_count),
                         $('<td>').text(job.working_count)
                     ).click(function() {
-                        openProxyModal(job.id);
+                        openProxyModal(job.uuid);
                     });
 
                     historyTable.append(row);
