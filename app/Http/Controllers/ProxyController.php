@@ -21,21 +21,19 @@ class ProxyController extends Controller
         $started_at = now();
         foreach ($proxies as $proxy) {
             $proxyInfo = $this->checkProxy($proxy, $jobId);
-            sleep(1);
             if ($proxyInfo['status'] === true) {
                 $workingProxies++;
             }
             $results[] = $proxyInfo;
             $ended_at = now();
         }
-        $jobData = [
+        JobsList::create([
             'id' => $jobId,
             'started_at' => $started_at,
             'ended_at' => $ended_at,
             'total_count' => $totalProxies,
             'working_count' => $workingProxies
-        ];
-        new JobsList($jobData);
+        ]);
 
         return response()->json([
             'results' => $results,
@@ -66,9 +64,7 @@ class ProxyController extends Controller
             'job_id' => $jobId
         ];
 
-        $newProxy = new Proxy($proxyInfo);
-
-        return $newProxy;
+        return $proxyInfo;
     }
 
     public function getDoneJobs() {
