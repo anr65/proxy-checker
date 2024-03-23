@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\CheckProxiesJob;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 class ProxyController extends Controller
 {
@@ -14,35 +11,23 @@ class ProxyController extends Controller
     {
         $proxies = explode("\n", $request->input('proxies'));
 
-        $job_id = Str::uuid();
-        CheckProxiesJob::dispatchSync($proxies, $job_id); // Dispatch job asynchronously
+        $results = [];
+        $totalProxies = count($proxies);
+        $workingProxies = 0;
 
-        return response()->json([
-            'message' => 'Proxy checking job has been dispatched successfully.',
-            'job_id' => $job_id, // Return the job ID
-            'done' => false, // Initially mark job as not done
-        ]);
-    }
-
-    public function getProgress(Request $request)
-    {
-        $jobId = $request->input('job_id');
-
-        $cacheKey = 'proxy_check_' . $jobId;
-        $progressData = Cache::get($cacheKey);
-
-        if (!$progressData) {
-            return response()->json(['error' => 'Invalid job ID or job not found.'], 404);
+        foreach ($proxies as $proxy) {
+            $proxyInfo = $this->checkProxy($proxy);
+            sleep(1);
+            if ($proxyInfo['status'] === 'working') {
+                $workingProxies++;
+            }
+            $results[] = $proxyInfo;
         }
 
-        $progress = $progressData['progress'];
-        $done = Cache::get('proxy_check_' . $jobId . '_done', false);
-
         return response()->json([
-            'progress' => $progress,
-            'done' => $done,
-            'job_id' => $jobId,
-            'results' => $progressData['results'], // Include results if needed
+            'results' => $results,
+            'total_proxies' => $totalProxies,
+            'working_proxies' => $workingProxies,
         ]);
     }
 
