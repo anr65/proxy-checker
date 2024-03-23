@@ -44,11 +44,12 @@
                 <label for="proxyList">Proxy List:</label>
                 <textarea class="form-control" id="proxyList" name="proxies" rows="10" cols="50"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Check Proxies</button>
+            <button type="submit" class="btn btn-primary" id="checkButton">Check Proxies</button>
         </form>
         <div class="progress mt-3">
             <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar"></div>
         </div>
+        <div class="mt-2" id="progressText">0%</div>
     </div>
 
     <div id="history" style="display: none;">
