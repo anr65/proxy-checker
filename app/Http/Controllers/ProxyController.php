@@ -61,7 +61,7 @@ class ProxyController extends Controller
             'status' => true,
             'timeout' => 100,
             'ext_ip' => $ip,
-            'job_id' => $jobId
+            'job_uuid' => $jobId
         ];
 
         Proxy::create($proxyInfo);

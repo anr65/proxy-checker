@@ -11,12 +11,12 @@ class Proxy extends Model
     protected $table = 'proxies';
 
     protected $fillable = [
-        'uuid',
+        'job_uuid',
         'ip_port',
         'type',
         'location',
         'status',
         'timeout',
-        'ext_ip'
+        'ext_ip',
     ];
 }
