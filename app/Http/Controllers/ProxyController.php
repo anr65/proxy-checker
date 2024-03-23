@@ -77,7 +77,7 @@ class ProxyController extends Controller
     }
 
     public function getProxiesByJob(Request $request) {
-        $jobData = Proxy::where('job_uuid', $request->input('jobId'))->get();
+        $jobData = Proxy::where('job_uuid', $request->query('job_id'))->get();
         return response()->json([
             'results' => $jobData,
         ]);
