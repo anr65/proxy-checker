@@ -45,10 +45,10 @@
                 <label for="proxyList">Proxy List:</label>
                 <textarea class="form-control" id="proxyList" name="proxies" rows="10" cols="50"></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" id="checkButton">
-                <span id="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Checking
-            </button>
+            <button type="submit" class="btn btn-primary" id="checkButton">Check Proxies</button>
+            <div id="loading" class="spinner-border text-primary ml-3" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
         </form>
         <div class="progress mt-3">
             <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar"></div>
@@ -96,7 +96,7 @@
             event.preventDefault();
 
             var submitButton = $('#checkButton');
-            submitButton.prop('disabled', true);
+            submitButton.remove();
 
             var progressBar = $('#progressBar');
             progressBar.css('width', '0%').attr('aria-valuenow', '0');
@@ -119,7 +119,7 @@
                 },
                 complete: function() {
                     loading.hide();
-                    submitButton.prop('disabled', false);
+                    submitButton.prop('disabled', false).text('Check Proxies');
                 }
             });
         });
