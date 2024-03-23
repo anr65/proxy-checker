@@ -19,6 +19,7 @@ class CheckProxiesJob implements ShouldQueue
     protected $totalProxies;
     protected $workingProxies;
     protected $jobId;
+    protected $callCount; // Variable to track the number of times updateProgress is called
 
     /**
      * Create a new job instance.
@@ -32,6 +33,7 @@ class CheckProxiesJob implements ShouldQueue
         $this->totalProxies = count($proxies);
         $this->workingProxies = 0;
         $this->jobId = $jobId; // Generate a unique job ID
+        $this->callCount = 0; // Initialize call count
         Cache::put('proxy_check_' . $this->jobId, [
             'progress' => 0,
             'total_proxies' => $this->totalProxies,
@@ -55,9 +57,11 @@ class CheckProxiesJob implements ShouldQueue
                 $this->workingProxies++;
             }
             // Update progress and results in cache
-            $progress = ($this->workingProxies / $this->totalProxies) * 100;
+            $this->callCount++; // Increment call count
+            $progress = ($this->callCount / $this->totalProxies) * 100; // Calculate progress
             $this->updateProgress($progress);
             $this->updateResults($proxyInfo);
+            sleep(1);
         }
         // Mark job as done
         Cache::put('proxy_check_' . $this->jobId . '_done', true);
