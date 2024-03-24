@@ -137,7 +137,8 @@
                             loading.hide();
                             $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
                         } else if (response.done === 0) {
-                            updateProgressBar((response.done_count) / data.total_count * 100);
+                            var percentage = (response.done_count / response.total_count) * 100;
+                            updateProgressBar(percentage);
                         } else if (response.status === 500) {
                             clearInterval(intervalId);
                             console.log(response)
