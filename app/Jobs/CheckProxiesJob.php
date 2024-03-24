@@ -94,40 +94,23 @@ class CheckProxiesJob implements ShouldQueue
     private function testConnection($url, $ip, $port)
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, 'http://example.com');
-        curl_setopt($ch, CURLOPT_PROXY, "http://$ip:$port");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20); // Total timeout in seconds
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Connection timeout in seconds
-
-        try {
-            $response = curl_exec($ch);
-            $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            if ($statusCode === 200) {
-                return response()->json([
-                    'results' => $statusCode,
-                ]);
-            } else {
-                return response()->json([
-                    'results' => $statusCode,
-                ]);
-            }
-        } catch (\Exception $e) {
-            // Check if the timeout exception occurred
-            if (curl_errno($ch) == CURLE_OPERATION_TIMEDOUT) {
-                // Timeout occurred, set timeout field to 20000 and return response
-                return response()->json([
-                    'results' => ['timeout' => 20000],
-                ]);
-            } else {
-                // Other connection exception occurred, return response with error
-                return response()->json([
-                    'results' => curl_error($ch),
-                ]);
-            }
-        } finally {
-            curl_close($ch);
+        curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/");
+        curl_setopt($ch, CURLOPT_PROXY, "http://82.223.121.72:39434");
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_exec($ch);
+        if (curl_errno($ch) == 0) {
+            return response()->json([
+                'results' => 'SUCCESS',
+            ]);
         }
+        else if (curl_errno($ch) == 28) {
+            return response()->json([
+                'results' => 'TIMEOUT',
+            ]);
+        } else {
+            echo "cURL error: " . curl_error($ch);
+        }
+        curl_close($ch);
     }
 
     private function testSocksConnection($ip, $port)
