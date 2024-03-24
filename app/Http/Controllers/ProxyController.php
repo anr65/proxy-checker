@@ -32,6 +32,7 @@ class ProxyController extends Controller
         return response()->json([
             'message' => 'Jobs started',
             'total_proxies' => $totalProxies,
+            'uuid' => $jobId,
         ]);
     }
     public function getProgress(Request $request)
