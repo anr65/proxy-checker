@@ -152,7 +152,6 @@
             }, 1000);
         }
         // Poll every second
-        }
 
         function displayResults(data) {
             var resultsTable = $('#resultsTable');
