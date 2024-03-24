@@ -93,7 +93,6 @@
 
 <script>
     $(document).ready(function() {
-        let jobId
         $('#proxyForm').submit(function(event) {
             event.preventDefault();
 
@@ -107,7 +106,7 @@
 
             var loading = $('#loading');
             loading.show();
-
+            var jobId;
             var formData = $(this).serialize();
             $.ajax({
                 type: 'POST',
@@ -115,7 +114,7 @@
                 data: formData,
                 success: function(response) {
                     jobId = response.uuid
-                    pollProgress();
+                    pollProgress(jobId);
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
@@ -124,7 +123,7 @@
         });
 
 
-        function pollProgress() {
+        function pollProgress(jobId) {
             var loading = $('#loading');
             var intervalId = setInterval(function() {
                 $.ajax({
