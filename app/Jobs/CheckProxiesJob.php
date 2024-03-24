@@ -44,10 +44,10 @@ class CheckProxiesJob implements ShouldQueue
         $response = $client->get("http://ip-api.com/json/{$ip}?fields=country,city,isp");
         $locationData = json_decode($response->getBody()->getContents(), true);
 
-        // Attempt HTTP connection
-//        $httpSuccess = $this->testConnection("http://google.com", $ip, $port);
-//        // Attempt HTTPS connection
-//        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
+//         Attempt HTTP connection
+        $httpSuccess = $this->testConnection("http://google.com", $ip, $port);
+        // Attempt HTTPS connection
+        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
         // Attempt SOCKS connection
 //        $socksSuccess = $this->testSocksConnection($ip, $port);
 
@@ -63,15 +63,16 @@ class CheckProxiesJob implements ShouldQueue
             'ext_ip' => $ip,
             'job_uuid' => $this->jobId
         ];
-        $proxyInfo['type'] = 'Unknown';
-        $proxyInfo['status'] = false;
-//        if ($httpSuccess) {
-//            $proxyInfo['type'] = 'HTTP';
-//            $proxyInfo['status'] = true;
-//        } elseif ($httpsSuccess) {
-//            $proxyInfo['type'] = 'HTTPS';
-//            $proxyInfo['status'] = true;
-//        } else
+        if ($httpSuccess) {
+            $proxyInfo['type'] = 'HTTP';
+            $proxyInfo['status'] = true;
+        } else if ($httpsSuccess) {
+            $proxyInfo['type'] = 'HTTPS';
+            $proxyInfo['status'] = true;
+        } else {
+            $proxyInfo['type'] = 'Unknown';
+            $proxyInfo['status'] = false;
+        }
 //        if ($socksSuccess) {
 //            $proxyInfo['type'] = 'SOCKS';
 //            $proxyInfo['status'] = true;
