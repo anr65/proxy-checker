@@ -21,7 +21,7 @@ class ProxyController extends Controller
 
         foreach ($proxies as $proxy) {
             CheckProxiesJob::dispatch($proxy, $jobId, $totalProxies);
-            sleep(0.3);
+            sleep(0.6);
         }
 
         JobsList::create([
