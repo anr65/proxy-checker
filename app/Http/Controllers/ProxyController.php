@@ -57,7 +57,8 @@ class ProxyController extends Controller
                 'success' => true,
                 'message' => 'Job still running',
                 'done' => 0,
-                'done_count' => count($results)
+                'done_count' => count($results),
+                'total_count' => $results[0]->total_count
             ])->setStatusCode(200);
         } else {
             return response()->json([
