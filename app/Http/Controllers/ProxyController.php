@@ -53,12 +53,13 @@ class ProxyController extends Controller
             ])->setStatusCode(200);
         } else if ($job && is_null($job->ended_at)) {
             $results = Proxy::where('job_uuid', $jobId)->get();
+            $totalCount = $job->total_count;
             return response()->json([
                 'success' => true,
                 'message' => 'Job still running',
                 'done' => 0,
                 'done_count' => count($results),
-                'total_count' => $results[0]->total_count
+                'total_count' => $totalCount
             ])->setStatusCode(200);
         } else {
             return response()->json([
