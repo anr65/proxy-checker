@@ -75,14 +75,12 @@
                 </tr>
                 </thead>
                 <tbody id="resultsBody">
-                <!-- Results will be populated here dynamically -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <div id="history" style="display: none;">
-        <!-- Place to display history -->
     </div>
 </div>
 
@@ -92,6 +90,7 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
 <script>
+    //Здесь отправляем запрос с проксями и забираем uuid задачи
     $(document).ready(function() {
         $('#proxyForm').submit(function(event) {
             event.preventDefault();
@@ -114,6 +113,7 @@
                 data: formData,
                 success: function(response) {
                     jobId = response.uuid
+                    //запускаем поллинг с ключом uuid задачи для проверки выполнения задачи
                     pollProgress(jobId);
                 },
                 error: function(xhr, status, error) {
@@ -122,7 +122,7 @@
             });
         });
 
-
+        //Поллим с интервалом 3 секунды для обновления результатов
         function pollProgress(jobId) {
             var loading = $('#loading');
             var intervalId = setInterval(function() {
@@ -136,6 +136,8 @@
                             displayResults(response);
                             loading.hide();
                             $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
+                        } else if (response.done === 0) {
+                            updateProgressBar((response.done_count + 1) / data.results.length * 100);
                         } else if (response.status === 500) {
                             clearInterval(intervalId);
                             console.log(response)
@@ -147,7 +149,7 @@
                         // Handle error case here, maybe show an error message
                     },
                 });
-            }, 5000);
+            }, 3000);
         }
         // Poll every second
 

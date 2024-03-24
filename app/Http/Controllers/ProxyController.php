@@ -21,6 +21,7 @@ class ProxyController extends Controller
 
         foreach ($proxies as $proxy) {
             CheckProxiesJob::dispatch($proxy, $jobId, $totalProxies);
+            sleep(0.3);
         }
 
         JobsList::create([
@@ -51,10 +52,12 @@ class ProxyController extends Controller
                 'done' => 1,
             ])->setStatusCode(200);
         } else if ($job && is_null($job->ended_at)) {
+            $results = Proxy::where('job_uuid', $jobId)->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Job still running',
-                'done' => 0
+                'done' => 0,
+                'done_count' => count($results)
             ])->setStatusCode(200);
         } else {
             return response()->json([
