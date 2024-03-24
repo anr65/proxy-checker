@@ -134,6 +134,8 @@
                         if (response.success && response.done === 1) {
                             clearInterval(intervalId);
                             displayResults(response);
+                            loading.hide();
+                            $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
                         } else if (response.status === 500) {
                             clearInterval(intervalId);
                             console.log(response)
@@ -144,10 +146,6 @@
                         clearInterval(intervalId);
                         // Handle error case here, maybe show an error message
                     },
-                    complete: function() {
-                        loading.hide();
-                        $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
-                    }
                 });
             }, 1000);
         }
