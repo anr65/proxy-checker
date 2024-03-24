@@ -45,12 +45,12 @@ class CheckProxiesJob implements ShouldQueue
         $response = $client->get("http://ip-api.com/json/{$ip}?fields=country,city,isp");
         $locationData = json_decode($response->getBody()->getContents(), true);
 
-//         Attempt HTTP connection
-        $httpSuccess = $this->testConnection("http://google.com", $ip, $port);
+        // Attempt HTTP connection
+        $httpSuccess = $this->testConnection('', $ip, $port);
         // Attempt HTTPS connection
-        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
+        $httpsSuccess = $this->testConnection("s", $ip, $port);
         // Attempt SOCKS connection
-//        $socksSuccess = $this->testSocksConnection($ip, $port);
+        $socksSuccess = $this->testSocksConnection($ip, $port);
 
         // Determine the type of successful connection
 
@@ -70,17 +70,13 @@ class CheckProxiesJob implements ShouldQueue
         } else if ($httpsSuccess) {
             $proxyInfo['type'] = 'HTTPS';
             $proxyInfo['status'] = true;
+        } else if ($socksSuccess) {
+            $proxyInfo['type'] = 'SOCKS';
+            $proxyInfo['status'] = true;
         } else {
             $proxyInfo['type'] = 'Unknown';
             $proxyInfo['status'] = false;
         }
-//        if ($socksSuccess) {
-//            $proxyInfo['type'] = 'SOCKS';
-//            $proxyInfo['status'] = true;
-//        } else {
-//            $proxyInfo['type'] = 'Unknown';
-//            $proxyInfo['status'] = false;
-//        }
 
         Proxy::create($proxyInfo);
 
@@ -91,24 +87,17 @@ class CheckProxiesJob implements ShouldQueue
         }
     }
 
-    private function testConnection($url, $ip, $port)
+    private function testConnection($type, $ip, $port)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/");
-        curl_setopt($ch, CURLOPT_PROXY, "http://82.223.121.72:39434");
+        curl_setopt($ch, CURLOPT_PROXY, "http{$type}://{$ip}:{$port}");
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_exec($ch);
         if (curl_errno($ch) == 0) {
-            return response()->json([
-                'results' => 'SUCCESS',
-            ]);
-        }
-        else if (curl_errno($ch) == 28) {
-            return response()->json([
-                'results' => 'TIMEOUT',
-            ]);
+            return true;
         } else {
-            echo "cURL error: " . curl_error($ch);
+            echo false;
         }
         curl_close($ch);
     }
@@ -116,14 +105,16 @@ class CheckProxiesJob implements ShouldQueue
     private function testSocksConnection($ip, $port)
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "http://example.com"); // URL doesn't matter for SOCKS test
+        curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/"); // URL doesn't matter for SOCKS test
         curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Use SOCKS5 proxy
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0.1); // Timeout in seconds
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Timeout in seconds
         curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (curl_errno($ch) == 0) {
+            return true;
+        } else {
+            echo false;
+        }
         curl_close($ch);
-        return ($httpCode == 200); // Check if connection was successful
     }
 }
