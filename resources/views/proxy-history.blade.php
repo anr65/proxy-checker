@@ -116,11 +116,14 @@
 
             $.get('/get-job-proxies', { job_id: jobId }, function(response) {
                 $.each(response.results, function(index, result) {
+                    var statusText = result.status ? 'Работает' : 'Нерабочий';
+                    var textColor = result.status ? 'black' : 'white';
+                    var backgroundColor = result.status ? 'green' : 'red';
                     var row = $('<tr>').append(
                         $('<td>').text(result.ip_port),
                         $('<td>').text(result.type),
                         $('<td>').text(result.location),
-                        $('<td>').text(result.status),
+                        $('<td> style="color: ' + textColor + '; background-color: ' + backgroundColor + ';"').text(statusText),
                         $('<td>').text(result.timeout + ' ms'),
                         $('<td>').text(result.ext_ip)
                     );
