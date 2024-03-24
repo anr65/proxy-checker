@@ -45,9 +45,9 @@ class CheckProxiesJob implements ShouldQueue
         $locationData = json_decode($response->getBody()->getContents(), true);
 
         // Attempt HTTP connection
-        $httpSuccess = $this->testConnection("http://google.com", $ip, $port);
-        // Attempt HTTPS connection
-        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
+//        $httpSuccess = $this->testConnection("http://google.com", $ip, $port);
+//        // Attempt HTTPS connection
+//        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
         // Attempt SOCKS connection
         $socksSuccess = $this->testSocksConnection($ip, $port);
 
@@ -64,13 +64,14 @@ class CheckProxiesJob implements ShouldQueue
             'job_uuid' => $this->jobId
         ];
 
-        if ($httpSuccess) {
-            $proxyInfo['type'] = 'HTTP';
-            $proxyInfo['status'] = true;
-        } elseif ($httpsSuccess) {
-            $proxyInfo['type'] = 'HTTPS';
-            $proxyInfo['status'] = true;
-        } elseif ($socksSuccess) {
+//        if ($httpSuccess) {
+//            $proxyInfo['type'] = 'HTTP';
+//            $proxyInfo['status'] = true;
+//        } elseif ($httpsSuccess) {
+//            $proxyInfo['type'] = 'HTTPS';
+//            $proxyInfo['status'] = true;
+//        } else
+        if ($socksSuccess) {
             $proxyInfo['type'] = 'SOCKS';
             $proxyInfo['status'] = true;
         } else {
