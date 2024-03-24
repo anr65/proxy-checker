@@ -51,7 +51,7 @@ class ProxyController extends Controller
             ])->setStatusCode(200);
         } else if ($job && is_null($job->ended_at)) {
             return response()->json([
-                'success' => false,
+                'success' => true,
                 'message' => 'Job still running',
             ])->setStatusCode(400);
         } else {
