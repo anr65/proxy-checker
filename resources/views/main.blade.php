@@ -130,24 +130,29 @@
                 $.ajax({
                     type: 'GET',
                     url: '/check-proxies/progress',
-                    data: {uuid: jobId},
+                    data: { uuid: jobId },
                     success: function(response) {
-                        if (response.success || response.status === 500) {
+                        if (response.success) {
                             clearInterval(intervalId);
-                            displayResults(response)
-                        }
+                            displayResults(response);
+                        } else if (response.status === 500) {
+                            clearInterval(intervalId);
+                            console.log(response)
+                        } // No need to handle 200 status here, success block is already handling it
                     },
                     error: function(xhr, status, error) {
                         console.error('Error checking progress:', error);
                         clearInterval(intervalId);
-                        displayResults(response)
+                        // Handle error case here, maybe show an error message
                     },
                     complete: function() {
                         loading.hide();
                         $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
                     }
                 });
-            }, 1000); // Poll every second
+            }, 1000);
+        }
+        // Poll every second
         }
 
         function displayResults(data) {
