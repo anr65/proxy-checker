@@ -95,6 +95,8 @@
         $('#proxyForm').submit(function(event) {
             event.preventDefault();
 
+            $('#resultsBody').empty();
+
             var submitButton = $('#checkButton');
             submitButton.remove();
 
