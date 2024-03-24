@@ -118,7 +118,7 @@ class ProxyController extends Controller
     public function getProgress(Request $request)
     {
         $jobId = $request->query('uuid');
-        $job = JobsList::where('uiud', $jobId)->first();
+        $job = JobsList::where('uuid', $jobId)->first();
         if ($job && !is_null($job->ended_at)) {
             $results = Proxy::where('job_uuid', $jobId)->get();
             $workingCount = $job->working_count;

@@ -136,6 +136,8 @@
                     },
                     error: function(xhr, status, error) {
                         console.error('Error checking progress:', error);
+                        clearInterval(intervalId);
+                        displayResults(response)
                     },
                     complete: function() {
                         loading.hide();
