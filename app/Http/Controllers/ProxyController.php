@@ -79,7 +79,7 @@ class ProxyController extends Controller
 
     // Метод для получения списка завершенных задач
     public function getDoneJobs() {
-        $doneJobs = JobsList::all();
+        $doneJobs = JobsList::orderBy('id', 'desc')->get();
         return response()->json([
             'list' => $doneJobs,
         ]);
