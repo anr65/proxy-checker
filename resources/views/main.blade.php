@@ -93,6 +93,7 @@
 
 <script>
     $(document).ready(function() {
+        let jobId
         $('#proxyForm').submit(function(event) {
             event.preventDefault();
 
@@ -113,6 +114,7 @@
                 url: '/check-proxies',
                 data: formData,
                 success: function(response) {
+                    jobId = response.data.uuid
                     pollProgress();
                 },
                 error: function(xhr, status, error) {
@@ -128,6 +130,7 @@
                 $.ajax({
                     type: 'GET',
                     url: '/check-proxies/progress',
+                    data: jobId,
                     success: function(response) {
                         if (response.success || response.status === 500) {
                             clearInterval(intervalId);
