@@ -114,7 +114,7 @@
                 url: '/check-proxies',
                 data: formData,
                 success: function(response) {
-                    jobId = response.data.uuid
+                    jobId = response.uuid
                     pollProgress();
                 },
                 error: function(xhr, status, error) {
