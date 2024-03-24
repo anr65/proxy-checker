@@ -113,17 +113,37 @@
                 url: '/check-proxies',
                 data: formData,
                 success: function(response) {
-                    displayResults(response);
+                    pollProgress();
                 },
                 error: function(xhr, status, error) {
                     console.error(xhr.responseText);
                 },
-                complete: function() {
-                    loading.hide();
-                    $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
-                }
             });
         });
+
+
+        function pollProgress() {
+            var loading = $('#loading');
+            var intervalId = setInterval(function() {
+                $.ajax({
+                    type: 'GET',
+                    url: '/check-proxies/progress',
+                    success: function(response) {
+                        if (response.success || response.status === 500) {
+                            clearInterval(intervalId);
+                            displayResults(response)
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error checking progress:', error);
+                    },
+                    complete: function() {
+                        loading.hide();
+                        $('#proxyForm').append('<button type="submit" class="btn btn-primary" id="checkButton">Проверить</button>');
+                    }
+                });
+            }, 1000); // Poll every second
+        }
 
         function displayResults(data) {
             var resultsTable = $('#resultsTable');

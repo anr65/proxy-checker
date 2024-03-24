@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\CheckProxiesJob;
 use App\Models\JobsList;
 use App\Models\Proxy;
 use GuzzleHttp\Client;
@@ -14,31 +15,23 @@ class ProxyController extends Controller
     {
         $proxies = explode("\n", $request->input('proxies'));
 
-        $results = [];
-        $totalProxies = count($proxies);
-        $workingProxies = 0;
         $jobId = Str::uuid();
+        $totalProxies = count($proxies);
         $started_at = now();
+
         foreach ($proxies as $proxy) {
-            $proxyInfo = $this->checkProxy($proxy, $jobId);
-            if ($proxyInfo['status'] === true) {
-                $workingProxies++;
-            }
-            $results[] = $proxyInfo;
-            $ended_at = now();
+            CheckProxiesJob::dispatch($proxy, $jobId, $totalProxies);
         }
+
         JobsList::create([
             'uuid' => $jobId,
             'started_at' => $started_at,
-            'ended_at' => $ended_at,
             'total_count' => $totalProxies,
-            'working_count' => $workingProxies
         ]);
 
         return response()->json([
-            'results' => $results,
+            'message' => 'Jobs started',
             'total_proxies' => $totalProxies,
-            'working_proxies' => $workingProxies,
         ]);
     }
 
@@ -120,6 +113,33 @@ class ProxyController extends Controller
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         return ($httpCode == 200); // Check if connection was successful
+    }
+
+    public function getProgress(Request $request)
+    {
+        $jobId = $request->query('uuid');
+        $job = JobsList::where('uiud', $jobId)->first();
+        if ($job && !is_null($job->ended_at)) {
+            $results = Proxy::where('job_uuid', $jobId)->get();
+            $workingCount = $job->working_count;
+            $totalCount = $job->total_count;
+            return response()->json([
+                'success' => true,
+                'results' => $results,
+                'working' => $workingCount,
+                'total_proxies' => $totalCount,
+            ])->setStatusCode(200);
+        } else if ($job && is_null($job->ended_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Job still running',
+            ])->setStatusCode(400);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Job not found'
+            ])->setStatusCode(500);
+        }
     }
     public function getDoneJobs() {
         $doneJobs = JobsList::all();
