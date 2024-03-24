@@ -76,4 +76,21 @@ class ProxyController extends Controller
             'results' => $jobData,
         ]);
     }
+
+    public function testConnection(Request $request)
+    {
+        $url = $request->url;
+        $ip = $request->ip;
+        $port = $request->port;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
+        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0.1); // Timeout in seconds
+        curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        return ($httpCode == 200); // Check if connection was successful
+    }
 }
