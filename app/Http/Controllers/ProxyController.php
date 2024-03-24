@@ -23,9 +23,8 @@ class ProxyController extends Controller
         $started_at = now();
 
         // Запускаем задачи проверки прокси-серверов в фоне
-        foreach ($proxies as $proxy) {
-            CheckProxiesJob::dispatch($proxy, $jobId, $totalProxies);
-            sleep(1);
+        foreach ($proxies as $index => $proxy) {
+            CheckProxiesJob::dispatch($proxy, $jobId, $totalProxies)->delay(now()->addSeconds($index));
         }
 
         // Записываем информацию о задаче в базу данных
