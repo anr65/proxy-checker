@@ -102,12 +102,18 @@ class CheckProxiesJob implements ShouldQueue
             $response = $client->request('GET', 'http://example.com');
             $statusCode = $response->getStatusCode();
             if ($statusCode === 200) {
-                // Proxy is working
+                return response()->json([
+                    'results' => $statusCode,
+                ]);
             } else {
-                // Proxy is not working
+                return response()->json([
+                    'results' => $statusCode,
+                ]);
             }
         } catch (\Exception $e) {
-            // Request failed, proxy may not be working
+            return response()->json([
+                'results' => $e,
+            ]);
         }
     }
 
