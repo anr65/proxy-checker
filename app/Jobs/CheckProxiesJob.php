@@ -92,16 +92,23 @@ class CheckProxiesJob implements ShouldQueue
 
     private function testConnection($url, $ip, $port)
     {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
-        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Timeout in seconds
-        curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-        return ($httpCode == 200); // Check if connection was successful
+
+        $client = new Client([
+            'proxy' => "http://$ip:$port", // Replace with your proxy IP and port
+            'timeout' => 1, // Set the timeout in seconds
+        ]);
+
+        try {
+            $response = $client->request('GET', 'http://example.com');
+            $statusCode = $response->getStatusCode();
+            if ($statusCode === 200) {
+                // Proxy is working
+            } else {
+                // Proxy is not working
+            }
+        } catch (\Exception $e) {
+            // Request failed, proxy may not be working
+        }
     }
 
     private function testSocksConnection($ip, $port)
