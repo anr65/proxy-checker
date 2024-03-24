@@ -147,7 +147,7 @@
                         // Handle error case here, maybe show an error message
                     },
                 });
-            }, 1000);
+            }, 5000);
         }
         // Poll every second
 
