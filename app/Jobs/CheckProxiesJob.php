@@ -97,7 +97,7 @@ class CheckProxiesJob implements ShouldQueue
         curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0.1); // Timeout in seconds
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Timeout in seconds
         curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
