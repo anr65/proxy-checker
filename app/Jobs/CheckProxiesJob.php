@@ -17,13 +17,13 @@ class CheckProxiesJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
+    // Переменные для хранения данных о прокси, задаче и общем количестве прокси
     protected $proxy;
     protected $jobId;
     protected $totalProxies;
 
     /**
-     * Create a new job instance.
+     * Создание нового экземпляра задания.
      */
     public function __construct($proxy, $jobId, $totalProxies)
     {
@@ -33,27 +33,29 @@ class CheckProxiesJob implements ShouldQueue
     }
 
     /**
-     * Execute the job.
+     * Выполнение задания.
      */
     public function handle(): void
     {
+        // Разбиваем данные прокси на IP и порт
         $proxyParts = explode(':', $this->proxy);
         $ip = $proxyParts[0];
         $port = $proxyParts[1];
 
+        // Создаем новый HTTP-клиент
         $client = new Client();
+        // Запрос к сервису для определения местоположения по IP
         $response = $client->get("http://ip-api.com/json/{$ip}?fields=country,city,isp");
         $locationData = json_decode($response->getBody()->getContents(), true);
 
-        // Attempt HTTP connection
+        // Попытка HTTP-подключения
         $httpSuccess = $this->testConnection('', $ip, $port);
-        // Attempt HTTPS connection
+        // Попытка HTTPS-подключения
         $httpsSuccess = $this->testConnection("s", $ip, $port);
-        // Attempt SOCKS connection
+        // Попытка подключения по SOCKS
         $socksSuccess = $this->testSocksConnection($ip, $port);
 
-        // Determine the type of successful connection
-
+        // Определение типа успешного подключения
         $country = $locationData['country'] ?? 'Unknown';
         $city = $locationData['city'] ?? 'Unknown';
         $location = "$country/$city";
@@ -78,16 +80,20 @@ class CheckProxiesJob implements ShouldQueue
             $proxyInfo['status'] = false;
         }
 
+        // Сохранение информации о прокси в базу данных
         Proxy::create($proxyInfo);
 
+        // Проверка завершения задачи
         $checkLastJob = count(Proxy::where('job_uuid', $this->jobId)->get()) >= $this->totalProxies;
         if ($checkLastJob) {
+            // Обновление статуса задачи и количества рабочих прокси
             $workingCount = count(Proxy::where('job_uuid', $this->jobId)->where('status', true)->get());
             JobsList::where('uuid', $this->jobId)->update(['ended_at' => now(), 'working_count' => $workingCount]);
         }
     }
 
-    private function testConnection($type, $ip, $port)
+    // Функция для тестирования HTTP-подключения
+    private function testConnection($type, $ip, $port): bool
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/");
@@ -102,13 +108,14 @@ class CheckProxiesJob implements ShouldQueue
         curl_close($ch);
     }
 
-    private function testSocksConnection($ip, $port)
+    // Функция для тестирования подключения по SOCKS
+    private function testSocksConnection($ip, $port): bool
     {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/"); // URL doesn't matter for SOCKS test
+        curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/"); // URL не имеет значения для теста SOCKS
         curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
-        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Use SOCKS5 proxy
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Timeout in seconds
+        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Использовать прокси SOCKS5
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Тайм-аут в секундах
         curl_exec($ch);
         if (curl_errno($ch) == 0) {
             return true;
