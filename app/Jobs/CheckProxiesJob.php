@@ -58,9 +58,7 @@ class CheckProxiesJob implements ShouldQueue
         $location = "$country/$city";
         $proxyInfo = [
             'ip_port' => "$ip:$port",
-            'type' => null,
             'location' => $location,
-            'status' => null,
             'timeout' => 100,
             'ext_ip' => $ip,
             'job_uuid' => $this->jobId
