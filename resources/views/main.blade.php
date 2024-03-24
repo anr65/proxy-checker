@@ -130,7 +130,7 @@
                 $.ajax({
                     type: 'GET',
                     url: '/check-proxies/progress',
-                    data: jobId,
+                    data: {uuid: jobId},
                     success: function(response) {
                         if (response.success || response.status === 500) {
                             clearInterval(intervalId);
