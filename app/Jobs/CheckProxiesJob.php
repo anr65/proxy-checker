@@ -49,7 +49,7 @@ class CheckProxiesJob implements ShouldQueue
 //        // Attempt HTTPS connection
 //        $httpsSuccess = $this->testConnection("https://google.com", $ip, $port);
         // Attempt SOCKS connection
-        $socksSuccess = $this->testSocksConnection($ip, $port);
+//        $socksSuccess = $this->testSocksConnection($ip, $port);
 
         // Determine the type of successful connection
 
@@ -63,7 +63,8 @@ class CheckProxiesJob implements ShouldQueue
             'ext_ip' => $ip,
             'job_uuid' => $this->jobId
         ];
-
+        $proxyInfo['type'] = 'Unknown';
+        $proxyInfo['status'] = false;
 //        if ($httpSuccess) {
 //            $proxyInfo['type'] = 'HTTP';
 //            $proxyInfo['status'] = true;
@@ -71,13 +72,13 @@ class CheckProxiesJob implements ShouldQueue
 //            $proxyInfo['type'] = 'HTTPS';
 //            $proxyInfo['status'] = true;
 //        } else
-        if ($socksSuccess) {
-            $proxyInfo['type'] = 'SOCKS';
-            $proxyInfo['status'] = true;
-        } else {
-            $proxyInfo['type'] = 'Unknown';
-            $proxyInfo['status'] = false;
-        }
+//        if ($socksSuccess) {
+//            $proxyInfo['type'] = 'SOCKS';
+//            $proxyInfo['status'] = true;
+//        } else {
+//            $proxyInfo['type'] = 'Unknown';
+//            $proxyInfo['status'] = false;
+//        }
 
         Proxy::create($proxyInfo);
 
