@@ -11,63 +11,74 @@ use Illuminate\Support\Str;
 
 class ProxyController extends Controller
 {
+    // Метод для проверки списка прокси-серверов
     public function checkProxies(Request $request)
     {
+        // Разбиваем входные данные на массив прокси
         $proxies = explode("\n", $request->input('proxies'));
 
+        // Генерируем уникальный идентификатор задачи
         $jobId = Str::uuid();
         $totalProxies = count($proxies);
         $started_at = now();
 
+        // Запускаем задачи проверки прокси-серверов в фоне
         foreach ($proxies as $proxy) {
             CheckProxiesJob::dispatch($proxy, $jobId, $totalProxies);
             sleep(0.6);
         }
 
+        // Записываем информацию о задаче в базу данных
         JobsList::create([
             'uuid' => $jobId,
             'started_at' => $started_at,
             'total_count' => $totalProxies,
         ]);
 
+        // Возвращаем ответ с информацией о запущенных задачах
         return response()->json([
-            'message' => 'Jobs started',
+            'message' => 'Задачи запущены',
             'total_proxies' => $totalProxies,
             'uuid' => $jobId,
         ]);
     }
+
+    // Метод для получения прогресса выполнения задачи
     public function getProgress(Request $request)
     {
         $jobId = $request->query('uuid');
         $job = JobsList::where('uuid', $jobId)->first();
-        if ($job && !is_null($job->ended_at)) {
+        if ($job) {
+            $workingCount = $job->working_count ?? null;
+            $totalCount = $job->total_count ?? null;
             $results = Proxy::where('job_uuid', $jobId)->get();
-            $workingCount = $job->working_count;
-            $totalCount = $job->total_count;
-            return response()->json([
-                'success' => true,
-                'results' => $results,
-                'working' => $workingCount,
-                'total_proxies' => $totalCount,
-                'done' => 1,
-            ])->setStatusCode(200);
-        } else if ($job && is_null($job->ended_at)) {
-            $results = Proxy::where('job_uuid', $jobId)->get();
-            $totalCount = $job->total_count;
-            return response()->json([
-                'success' => true,
-                'message' => 'Job still running',
-                'done' => 0,
-                'done_count' => count($results),
-                'total_count' => $totalCount
-            ])->setStatusCode(200);
+            if (!is_null($job->ended_at)) {
+                return response()->json([
+                    'success' => true,
+                    'results' => $results,
+                    'working' => $workingCount,
+                    'total_proxies' => $totalCount,
+                    'done' => 1,
+                ])->setStatusCode(200);
+            } else {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Задача еще выполняется',
+                    'done' => 0,
+                    'done_count' => count($results),
+                    'total_count' => $totalCount
+                ])->setStatusCode(200);
+            }
         } else {
+            // Если задача не найдена, возвращаем ошибку
             return response()->json([
                 'success' => false,
-                'message' => 'Job not found'
+                'message' => 'Задача не найдена'
             ])->setStatusCode(500);
         }
     }
+
+    // Метод для получения списка завершенных задач
     public function getDoneJobs() {
         $doneJobs = JobsList::all();
         return response()->json([
@@ -75,32 +86,11 @@ class ProxyController extends Controller
         ]);
     }
 
+    // Метод для получения прокси по идентификатору задачи
     public function getProxiesByJob(Request $request) {
         $jobData = Proxy::where('job_uuid', $request->query('job_id'))->get();
         return response()->json([
             'results' => $jobData,
         ]);
-    }
-
-    public function testConnection(Request $request)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/");
-        curl_setopt($ch, CURLOPT_PROXY, "http://82.223.121.72:39434");
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_exec($ch);
-        if (curl_errno($ch) == 0) {
-            return response()->json([
-                'results' => 'SUCCESS',
-            ]);
-        }
-        else if (curl_errno($ch) == 28) {
-            return response()->json([
-                'results' => 'TIMEOUT',
-            ]);
-        } else {
-            echo "cURL error: " . curl_error($ch);
-        }
-        curl_close($ch);
     }
 }
