@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\JobsList;
 use App\Models\Proxy;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -95,7 +96,7 @@ class CheckProxiesJob implements ShouldQueue
 
         $client = new Client([
             'proxy' => "http://$ip:$port", // Replace with your proxy IP and port
-            'timeout' => 1, // Set the timeout in seconds
+            'timeout' => 1, // Set the total timeout in seconds
         ]);
 
         try {
@@ -110,9 +111,23 @@ class CheckProxiesJob implements ShouldQueue
                     'results' => $statusCode,
                 ]);
             }
+        } catch (ConnectException $e) {
+            // Check if the timeout exception occurred
+            if (strpos($e->getMessage(), 'cURL error 28') !== false) {
+                // Timeout occurred, set timeout field to 20000 and return response
+                return response()->json([
+                    'results' => ['timeout' => 1000],
+                ]);
+            } else {
+                // Other connection exception occurred, return response with error
+                return response()->json([
+                    'results' => $e->getMessage(),
+                ]);
+            }
         } catch (\Exception $e) {
+            // Other exceptions occurred, return response with error
             return response()->json([
-                'results' => $e,
+                'results' => $e->getMessage(),
             ]);
         }
     }
