@@ -93,15 +93,16 @@ class CheckProxiesJob implements ShouldQueue
 
     private function testConnection($url, $ip, $port)
     {
-
-        $client = new Client([
-            'proxy' => "http://$ip:$port", // Replace with your proxy IP and port
-            'timeout' => 1, // Set the total timeout in seconds
-        ]);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'http://example.com');
+        curl_setopt($ch, CURLOPT_PROXY, "http://$ip:$port");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20); // Total timeout in seconds
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Connection timeout in seconds
 
         try {
-            $response = $client->request('GET', 'http://example.com');
-            $statusCode = $response->getStatusCode();
+            $response = curl_exec($ch);
+            $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($statusCode === 200) {
                 return response()->json([
                     'results' => $statusCode,
@@ -111,24 +112,21 @@ class CheckProxiesJob implements ShouldQueue
                     'results' => $statusCode,
                 ]);
             }
-        } catch (ConnectException $e) {
+        } catch (\Exception $e) {
             // Check if the timeout exception occurred
-            if (strpos($e->getMessage(), 'cURL error 28') !== false) {
+            if (curl_errno($ch) == CURLE_OPERATION_TIMEDOUT) {
                 // Timeout occurred, set timeout field to 20000 and return response
                 return response()->json([
-                    'results' => ['timeout' => 1000],
+                    'results' => ['timeout' => 20000],
                 ]);
             } else {
                 // Other connection exception occurred, return response with error
                 return response()->json([
-                    'results' => $e->getMessage(),
+                    'results' => curl_error($ch),
                 ]);
             }
-        } catch (\Exception $e) {
-            // Other exceptions occurred, return response with error
-            return response()->json([
-                'results' => $e->getMessage(),
-            ]);
+        } finally {
+            curl_close($ch);
         }
     }
 
