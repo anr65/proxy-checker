@@ -100,12 +100,12 @@ class CheckProxiesJob implements ShouldQueue
         curl_setopt($ch, CURLOPT_PROXY, "http{$type}://{$ip}:{$port}");
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_exec($ch);
+        curl_close($ch);
         if (curl_errno($ch) == 0) {
             return true;
         } else {
-            echo false;
+            return false;
         }
-        curl_close($ch);
     }
 
     // Функция для тестирования подключения по SOCKS
@@ -117,11 +117,11 @@ class CheckProxiesJob implements ShouldQueue
         curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5); // Использовать прокси SOCKS5
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1); // Тайм-аут в секундах
         curl_exec($ch);
+        curl_close($ch);
         if (curl_errno($ch) == 0) {
             return true;
         } else {
-            echo false;
+            return false;
         }
-        curl_close($ch);
     }
 }
