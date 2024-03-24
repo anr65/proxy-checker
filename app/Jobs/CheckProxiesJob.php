@@ -19,6 +19,7 @@ class CheckProxiesJob implements ShouldQueue
 
     protected $proxy;
     protected $jobId;
+    protected $totalProxies;
 
     /**
      * Create a new job instance.
