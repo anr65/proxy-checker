@@ -36,12 +36,7 @@ class CheckProxiesJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->checkProxy($this->proxy, $this->jobId);
-    }
-
-    private function checkProxy($proxy, $jobId)
-    {
-        $proxyParts = explode(':', $proxy);
+        $proxyParts = explode(':', $this->proxy);
         $ip = $proxyParts[0];
         $port = $proxyParts[1];
 
@@ -68,7 +63,7 @@ class CheckProxiesJob implements ShouldQueue
             'status' => null,
             'timeout' => 100,
             'ext_ip' => $ip,
-            'job_uuid' => $jobId
+            'job_uuid' => $this->jobId
         ];
 
         if ($httpSuccess) {
@@ -87,14 +82,12 @@ class CheckProxiesJob implements ShouldQueue
 
         Proxy::create($proxyInfo);
 
-        $checkLastJob = count(Proxy::where('job_uuid', $jobId)->get()) >= $this->totalProxies;
+        $checkLastJob = count(Proxy::where('job_uuid', $this->jobId)->get()) >= $this->totalProxies;
         if ($checkLastJob) {
-            $workingCount = count(Proxy::where('job_uuid', $jobId)->where('status', true)->get());
-            JobsList::where('uuid', $jobId)->update(['ended_at' => now(), 'working_count' => $workingCount]);
+            $workingCount = count(Proxy::where('job_uuid', $this->jobId)->where('status', true)->get());
+            JobsList::where('uuid', $this->jobId)->update(['ended_at' => now(), 'working_count' => $workingCount]);
         }
-        return $proxyInfo;
     }
-
 
     private function testConnection($url, $ip, $port)
     {
