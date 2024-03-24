@@ -131,7 +131,7 @@
                     url: '/check-proxies/progress',
                     data: { uuid: jobId },
                     success: function(response) {
-                        if (response.success) {
+                        if (response.success && response.done === 1) {
                             clearInterval(intervalId);
                             displayResults(response);
                         } else if (response.status === 500) {

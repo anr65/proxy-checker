@@ -48,13 +48,13 @@ class ProxyController extends Controller
                 'results' => $results,
                 'working' => $workingCount,
                 'total_proxies' => $totalCount,
-                'status' => 1,
+                'done' => 1,
             ])->setStatusCode(200);
         } else if ($job && is_null($job->ended_at)) {
             return response()->json([
                 'success' => true,
                 'message' => 'Job still running',
-                'status' => 0
+                'done' => 0
             ])->setStatusCode(200);
         } else {
             return response()->json([
