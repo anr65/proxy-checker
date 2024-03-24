@@ -79,18 +79,23 @@ class ProxyController extends Controller
 
     public function testConnection(Request $request)
     {
-        $url = $request->url;
-        $ip = $request->ip;
-        $port = $request->port;
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_PROXY, "$ip:$port");
-        curl_setopt($ch, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0.1); // Timeout in seconds
+        curl_setopt($ch, CURLOPT_URL, "https://ip.oxylabs.io/");
+        curl_setopt($ch, CURLOPT_PROXY, "http://82.223.121.72:39434");
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if (curl_errno($ch) == 0) {
+            return response()->json([
+                'results' => 'SUCCESS',
+            ]);
+        }
+        else if (curl_errno($ch) == 28) {
+            return response()->json([
+                'results' => 'TIMEOUT',
+            ]);
+        } else {
+            echo "cURL error: " . curl_error($ch);
+        }
         curl_close($ch);
-        return ($httpCode == 200); // Check if connection was successful
     }
 }
