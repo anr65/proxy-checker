@@ -6,13 +6,14 @@ use App\Jobs\CheckProxiesJob;
 use App\Models\JobsList;
 use App\Models\Proxy;
 use GuzzleHttp\Client;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ProxyController extends Controller
 {
     // Метод для проверки списка прокси-серверов
-    public function checkProxies(Request $request)
+    public function checkProxies(Request $request): JsonResponse
     {
         // Разбиваем входные данные на массив прокси
         $proxies = explode("\n", $request->input('proxies'));
@@ -43,7 +44,7 @@ class ProxyController extends Controller
     }
 
     // Метод для получения прогресса выполнения задачи
-    public function getProgress(Request $request)
+    public function getProgress(Request $request): JsonResponse
     {
         $jobId = $request->query('uuid');
         $job = JobsList::where('uuid', $jobId)->first();
@@ -78,7 +79,8 @@ class ProxyController extends Controller
     }
 
     // Метод для получения списка завершенных задач
-    public function getDoneJobs() {
+    public function getDoneJobs(): JsonResponse
+    {
         $doneJobs = JobsList::orderBy('id', 'desc')->get();
         return response()->json([
             'list' => $doneJobs,
@@ -86,7 +88,8 @@ class ProxyController extends Controller
     }
 
     // Метод для получения прокси по идентификатору задачи
-    public function getProxiesByJob(Request $request) {
+    public function getProxiesByJob(Request $request): JsonResponse
+    {
         $jobData = Proxy::where('job_uuid', $request->query('job_id'))->get();
         return response()->json([
             'results' => $jobData,
